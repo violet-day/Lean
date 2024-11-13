@@ -400,6 +400,8 @@ namespace QuantConnect.Notifications
             }
 
             var type = notification.GetType();
+            Console.WriteLine("sssssssssssss");
+            Console.WriteLine($"NotificationExtensions is {type}");
             return type != typeof(NotificationEmail) &&
                 type != typeof(NotificationWeb) &&
                 type != typeof(NotificationSms) &&

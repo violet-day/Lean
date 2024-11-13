@@ -394,6 +394,7 @@ namespace QuantConnect.Notifications
         /// <returns>Whether the notification can be sent</returns>
         public static bool CanSend(this Notification notification)
         {
+            return true;
             if (notification == null)
             {
                 return false;

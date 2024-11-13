@@ -13,6 +13,7 @@
  * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using QuantConnect.Interfaces;
 using QuantConnect.Logging;
@@ -121,6 +122,7 @@ namespace QuantConnect.Messaging
         /// <param name="notification">The notification to be sent.</param>
         public void SendNotification(Notification notification)
         {
+            Console.WriteLine("EventMessagingHandler.cs");
             if (!notification.CanSend())
             {
                 Log.Error("Messaging.SendNotification(): Send not implemented for notification of type: " + notification.GetType().Name);

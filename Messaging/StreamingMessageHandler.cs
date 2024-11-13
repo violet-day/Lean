@@ -72,6 +72,7 @@ namespace QuantConnect.Messaging
         /// <param name="notification">The notification to be sent.</param>
         public void SendNotification(Notification notification)
         {
+            Console.WriteLine("StreamingMessageHandler.cs");
             if (!notification.CanSend())
             {
                 Log.Error("Messaging.SendNotification(): Send not implemented for notification of type: " + notification.GetType().Name);

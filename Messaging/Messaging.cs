@@ -112,11 +112,11 @@ namespace QuantConnect.Messaging
         /// </summary>
         public void SendNotification(Notification notification)
         {
-            if (!notification.CanSend())
-            {
-                Log.Error("Messaging.SendNotification(): Send not implemented for notification of type: " + notification.GetType().Name);
-                return;
-            }
+            // if (!notification.CanSend())
+            // {
+            //     Log.Error("Messaging.SendNotification(): Send not implemented for notification of type: " + notification.GetType().Name);
+            //     return;
+            // }
             notification.Send();
         }
 

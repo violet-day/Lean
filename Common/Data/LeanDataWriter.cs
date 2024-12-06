@@ -138,6 +138,7 @@ namespace QuantConnect.Data
                 if (data.Time.Date != lastTime.Date)
                 {
                     var mappedSymbol = GetMappedSymbol(data.Time, data.Symbol);
+                    Console.WriteLine($"mappedSymbol is {mappedSymbol.Value}");
                     // Get the latest file name, if it has changed, we have entered a new file, write our current data to file
                     var latestOutputFile = GetZipOutputFileName(_dataDirectory, data.Time, mappedSymbol);
                     var latestSymbol = mappedSymbol;

@@ -65,7 +65,7 @@ public static class Program
         var dataDownloader = Composer.Instance.GetExportedValueByTypeName<IDataDownloader>(Config.Get(DownloaderCommandArguments.CommandDownloaderDataDownloader));
 
         var dataDownloadConfig = new DataDownloadConfig();
-
+        Console.WriteLine($"dataDownloadConfig is {dataDownloadConfig}");
         RunDownload(dataDownloader, dataDownloadConfig, Globals.DataFolder, _dataCacheProvider);
     }
 

@@ -106,6 +106,10 @@ namespace QuantConnect.Lean.Engine.DataFeeds
         private IEnumerable<Symbol> GetOptionSymbols(Symbol canonicalSymbol, DateTime date)
         {
             IHistoryProvider historyProvider = Composer.Instance.GetPart<IHistoryProvider>();
+            if (historyProvider == null)
+            {
+                return Enumerable.Empty<Symbol>();
+            }
             var marketHoursDataBase = MarketHoursDatabase.FromDataFolder();
             var marketHoursEntry = marketHoursDataBase.GetEntry(canonicalSymbol.ID.Market, canonicalSymbol, canonicalSymbol.SecurityType);
 

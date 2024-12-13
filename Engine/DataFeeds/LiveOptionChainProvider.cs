@@ -348,7 +348,7 @@ namespace QuantConnect.Lean.Engine.DataFeeds
             expectedOptionTicker = expectedOptionTicker.LazyToUpper();
 
             var optionStyle = underlyingSymbol.SecurityType.DefaultOptionStyle();
-
+            Console.WriteLine($"expectedOptionTicker is {expectedOptionTicker}");
             // parse the lines, creating the Lean option symbols
             foreach (var line in lines)
             {

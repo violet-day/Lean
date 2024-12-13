@@ -19,6 +19,7 @@ using QuantConnect.Logging;
 using QuantConnect.Brokerages;
 using QuantConnect.Configuration;
 using QuantConnect.DownloaderDataProvider.Launcher.Models.Constants;
+using QuantConnect.Securities.Option;
 
 namespace QuantConnect.DownloaderDataProvider.Launcher
 {
@@ -92,7 +93,16 @@ namespace QuantConnect.DownloaderDataProvider.Launcher
 
             foreach (var ticker in (Config.GetValue<Dictionary<string, string>>(DownloaderCommandArguments.CommandTickers))!.Keys)
             {
-                Symbols.Add(Symbol.Create(ticker, SecurityType, MarketName));
+                if (Extensions.IsOption(SecurityType))
+                {
+                    var underlyingTicker = OptionSymbol.MapToUnderlying(ticker, SecurityType);
+                    var underlying = Symbol.Create(ticker, SecurityType, MarketName);
+                    Symbols.Add(Symbol.CreateCanonicalOption(underlying, ticker, MarketName, ticker));
+                }
+                else
+                {
+                    Symbols.Add(Symbol.Create(ticker, SecurityType, MarketName));    
+                }
             }
         }
 

@@ -65,7 +65,7 @@ public static class Program
         var dataDownloader = Composer.Instance.GetExportedValueByTypeName<IDataDownloader>(Config.Get(DownloaderCommandArguments.CommandDownloaderDataDownloader));
 
         var dataDownloadConfig = new DataDownloadConfig();
-
+        Console.WriteLine($"dataDownloadConfig is {dataDownloadConfig}");
         RunDownload(dataDownloader, dataDownloadConfig, Globals.DataFolder, _dataCacheProvider);
     }
 
@@ -91,6 +91,7 @@ public static class Program
 
         foreach (var symbol in dataDownloadConfig.Symbols)
         {
+
             var downloadParameters = new DataDownloaderGetParameters(symbol, dataDownloadConfig.Resolution, dataDownloadConfig.StartDate, dataDownloadConfig.EndDate, dataDownloadConfig.TickType);
 
             Log.Trace($"DownloaderDataProvider.Main(): Starting download {downloadParameters}");

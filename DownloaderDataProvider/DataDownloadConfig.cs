@@ -93,9 +93,9 @@ namespace QuantConnect.DownloaderDataProvider.Launcher
 
             foreach (var ticker in (Config.GetValue<Dictionary<string, string>>(DownloaderCommandArguments.CommandTickers))!.Keys)
             {
-                if (Extensions.IsOption(SecurityType))
+                if (SecurityType == SecurityType.IndexOption)
                 {
-                    var underlyingTicker = OptionSymbol.MapToUnderlying(ticker, SecurityType);
+                    var underlyingTicker = OptionSymbol.MapToUnderlying(ticker, SecurityType.Index);
                     var underlying = Symbol.Create(underlyingTicker, SecurityType, MarketName);
                     Symbols.Add(Symbol.CreateCanonicalOption(underlying, ticker, MarketName, ticker));
                 }

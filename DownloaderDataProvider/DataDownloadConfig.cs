@@ -96,7 +96,7 @@ namespace QuantConnect.DownloaderDataProvider.Launcher
                 if (Extensions.IsOption(SecurityType))
                 {
                     var underlyingTicker = OptionSymbol.MapToUnderlying(ticker, SecurityType);
-                    var underlying = Symbol.Create(ticker, SecurityType, MarketName);
+                    var underlying = Symbol.Create(underlyingTicker, SecurityType, MarketName);
                     Symbols.Add(Symbol.CreateCanonicalOption(underlying, ticker, MarketName, ticker));
                 }
                 else

@@ -453,6 +453,7 @@ namespace QuantConnect
             var firstDate = DefaultDate;
             if (mapSymbol)
             {
+                Console.WriteLine($"------------SecurityIdentifier GenerateEquity for {symbol}");
                 var firstTickerDate = GetFirstTickerAndDate(mapFileProvider ?? MapFileProvider.Value, symbol, market, SecurityType.Equity, mappingResolveDate: mappingResolveDate);
                 firstDate = firstTickerDate.Item2;
                 symbol = firstTickerDate.Item1;

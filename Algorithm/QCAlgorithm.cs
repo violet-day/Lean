@@ -2919,12 +2919,13 @@ namespace QuantConnect.Algorithm
             where T : Security
         {
             market = GetMarket(market, ticker, securityType);
-
+            Console.WriteLine($"---------------- {ticker} market is {market}");
             Symbol symbol;
             if (!SymbolCache.TryGetSymbol(ticker, out symbol) ||
                 symbol.ID.Market != market ||
                 symbol.SecurityType != securityType)
             {
+                Console.WriteLine($"---------- try create {symbol}");
                 symbol = QuantConnect.Symbol.Create(ticker, securityType, market);
             }
 

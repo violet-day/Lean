@@ -577,6 +577,11 @@ namespace QuantConnect.Algorithm
             Security security,
             List<SubscriptionDataConfig> configurations)
         {
+            if (security.Symbol.ID.Date == DateTime.FromOADate(0))
+            {
+                Console.WriteLine("---------just return AddToUserDefinedUniverse");
+                return security; 
+            }
             var subscription = configurations.First();
             // if we are adding a non-internal security which already has an internal feed, we remove it first
             if (Securities.TryGetValue(security.Symbol, out var existingSecurity))

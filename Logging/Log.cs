@@ -30,7 +30,7 @@ namespace QuantConnect.Logging
         private static readonly Regex LeanPathRegex = new Regex("(?:\\S*?\\\\pythonnet\\\\)|(?:\\S*?\\\\Lean\\\\)|(?:\\S*?/Lean/)|(?:\\S*?/pythonnet/)", RegexOptions.Compiled);
         private static string _lastTraceText = "";
         private static string _lastErrorText = "";
-        private static bool _debuggingEnabled;
+        private static bool _debuggingEnabled = true;
         private static int _level = 1;
         private static ILogHandler _logHandler = new ConsoleLogHandler();
 

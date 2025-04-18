@@ -2934,8 +2934,9 @@ namespace QuantConnect.Algorithm
                 dataMappingMode: mappingMode ?? UniverseSettings.DataMappingMode);
             var security = Securities.CreateSecurity(symbol, configs, leverage);
             Console.WriteLine("---------add AddToUserDefinedUniverse");
-            
-            return (T)AddToUserDefinedUniverse(security, configs);
+            if(symbol!=null){
+                return (T)AddToUserDefinedUniverse(security, configs);    
+            }
         }
 
         /// <summary>

@@ -161,14 +161,18 @@ namespace QuantConnect.Lean.Engine.DataFeeds
                             }
 
                             Console.WriteLine("-------------before AddSubscription");
-
-                            AddSubscription(
-                                new SubscriptionRequest(true,
-                                    universe,
-                                    security,
-                                    config,
-                                    start,
-                                    end));
+                            try
+                            {
+                                AddSubscription(
+                                    new SubscriptionRequest(true,
+                                        universe,
+                                        security,
+                                        config,
+                                        start,
+                                        end));
+                            } catch (Exception ex) {
+                                Console.WriteLine($"AddSubscription fail {ex}");
+                            }
                         }
                         break;
 

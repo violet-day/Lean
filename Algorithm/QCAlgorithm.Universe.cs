@@ -583,6 +583,7 @@ namespace QuantConnect.Algorithm
             {
                 if (!subscription.IsInternalFeed && existingSecurity.IsInternalFeed())
                 {
+                    Console.WriteLine("-------------- subscription.IsInternalFeed branch");
                     var securityUniverse = UniverseManager.Select(x => x.Value).OfType<UserDefinedUniverse>().FirstOrDefault(x => x.Members.ContainsKey(security.Symbol));
                     securityUniverse?.Remove(security.Symbol);
 
@@ -602,6 +603,7 @@ namespace QuantConnect.Algorithm
             {
                 if (universe == null)
                 {
+                    Console.WriteLine("-------------- UniverseManager.TryGetValue branch");
                     // create a new universe, these subscription settings don't currently get used
                     // since universe selection proper is never invoked on this type of universe
                     var uconfig = new SubscriptionDataConfig(subscription, symbol: universeSymbol, isInternalFeed: true, fillForward: false,
@@ -623,7 +625,7 @@ namespace QuantConnect.Algorithm
                             TimeSpan.Zero),
                         QuantConnect.Time.MaxTimeSpan,
                         new List<Symbol>());
-
+                    Console.WriteLine("-------process AddUniverse");
                     AddUniverse(universe);
                 }
             }

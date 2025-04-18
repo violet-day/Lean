@@ -2933,7 +2933,7 @@ namespace QuantConnect.Algorithm
                 dataNormalizationMode: normalizationMode ?? UniverseSettings.DataNormalizationMode,
                 dataMappingMode: mappingMode ?? UniverseSettings.DataMappingMode);
             var security = Securities.CreateSecurity(symbol, configs, leverage);
-
+            Console.WriteLine("---------add AddToUserDefinedUniverse");
             return (T)AddToUserDefinedUniverse(security, configs);
         }
 

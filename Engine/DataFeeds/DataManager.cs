@@ -88,6 +88,7 @@ namespace QuantConnect.Lean.Engine.DataFeeds
                     case NotifyCollectionChangedAction.Add:
                         foreach (var universe in args.NewItems.OfType<Universe>())
                         {
+                            Console.WriteLine("--------algorithm.UniverseManager.CollectionChanged case NotifyCollectionChangedAction.Add");
                             var config = universe.Configuration;
                             var start = algorithm.UtcTime;
 
@@ -158,6 +159,8 @@ namespace QuantConnect.Lean.Engine.DataFeeds
                                     LeanData.UseDailyStrictEndTimes(algorithm.Settings, config.Type, security.Symbol, Time.OneDay, security.Exchange.Hours));
                                 start = startLocalTime.ConvertToUtc(security.Exchange.TimeZone);
                             }
+
+                            Console.WriteLine("-------------before AddSubscription");
 
                             AddSubscription(
                                 new SubscriptionRequest(true,

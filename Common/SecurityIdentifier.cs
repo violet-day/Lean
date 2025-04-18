@@ -718,7 +718,7 @@ namespace QuantConnect
             Console.WriteLine($"------------GetFirstTickerAndDate {mapFileProvider} {tickerToday} {market} {securityType} {mappingResolveDate}");
             var resolver = mapFileProvider.Get(new AuxiliaryDataKey(market, securityType));
             var mapFile = resolver.ResolveMapFile(tickerToday, mappingResolveDate ?? DateTime.Today);
-            Console.WriteLine("-------------end resolver.ResolveMapFile");
+            Console.WriteLine($"-------------end resolver.ResolveMapFile {mapFile.FirstTicker} {mapFile.FirstDate}");
             // if we have mapping data, use the first ticker/date from there, otherwise use provided ticker and DefaultDate
             return mapFile.Any()
                 ? Tuple.Create(mapFile.FirstTicker, mapFile.FirstDate)

@@ -179,7 +179,8 @@ namespace QuantConnect
                         _date = DateTime.FromOADate(oadate);
                         return _date.Value;
                     default:
-                        throw new InvalidOperationException(Messages.SecurityIdentifier.DateNotSupportedBySecurityType);
+                        Console.WriteLine($"-------- {this.Symbol} type is {SecurityType.ToString()} keep silent");
+                        // throw new InvalidOperationException(Messages.SecurityIdentifier.DateNotSupportedBySecurityType);
                 }
             }
         }

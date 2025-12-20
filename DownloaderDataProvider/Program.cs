@@ -57,6 +57,7 @@ public static class Program
     /// <param name="args">Command-line arguments passed to the application.</param>
     public static void Main(string[] args)
     {
+        Console.WriteLine("-------------------------main------------------");
         // Parse report arguments and merge with config to use in the optimizer
         if (args.Length > 0)
         {

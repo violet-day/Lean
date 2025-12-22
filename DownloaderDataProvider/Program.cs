@@ -57,7 +57,6 @@ public static class Program
     /// <param name="args">Command-line arguments passed to the application.</param>
     public static void Main(string[] args)
     {
-        Console.WriteLine("-------------------------main------------------");
         // Parse report arguments and merge with config to use in the optimizer
         if (args.Length > 0)
         {
@@ -65,6 +64,8 @@ public static class Program
         }
 
         InitializeConfigurations();
+
+        Log.DebuggingEnabled = true;
 
         var dataDownloader = Composer.Instance.GetExportedValueByTypeName<IDataDownloader>(Config.Get(DownloaderCommandArguments.CommandDownloaderDataDownloader));
         var commandDataType = Config.Get(DownloaderCommandArguments.CommandDataType).ToUpperInvariant();
@@ -77,6 +78,7 @@ public static class Program
             case "TRADE":
             case "QUOTE":
             case "OPENINTEREST":
+                Console.WriteLine($"-----------------------begin RunDownload {dataDownloader} {commandDataType}----------------");
                 RunDownload(dataDownloader, new DataDownloadConfig(), Globals.DataFolder, _dataCacheProvider);
                 break;
             default:

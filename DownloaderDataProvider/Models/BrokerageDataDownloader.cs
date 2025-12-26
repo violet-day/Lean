@@ -111,7 +111,7 @@ namespace QuantConnect.DownloaderDataProvider.Launcher.Models
                 {
                     Console.WriteLine($"----------------{startUtc}, {endUtc}------------------");
 
-                    endUtc = startUtc.AddHours(12+7.5);
+                    endUtc = startUtc.AddHours(12+3.5);
                     Console.WriteLine($"-----------------after changed become {endUtc}");
                     
                     var request = new Data.HistoryRequest(startUtc, endUtc, dataType, symbol, resolution, exchangeHours: exchangeHours, dataTimeZone: dataTimeZone, resolution,

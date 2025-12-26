@@ -14,6 +14,7 @@
 */
 
 using NodaTime;
+using ProtoBuf.WellKnownTypes;
 using QuantConnect.Util;
 using QuantConnect.Data;
 using QuantConnect.Packets;
@@ -109,13 +110,8 @@ namespace QuantConnect.DownloaderDataProvider.Launcher.Models
                 .Select(symbol =>
                 {
                     Console.WriteLine($"----------------{startUtc}, {endUtc}------------------");
-                    
-                    endUtc = SystemClock.Instance.GetCurrentInstant()  // Instant
-                        .InZone(DateTimeZoneProviders.Tzdb["America/New_York"])  // ZonedDateTime
-                        .LocalDateTime.Date  // LocalDate
-                        .At(new LocalTime(10, 0))  // LocalDateTime
-                        .InZoneLeniently(DateTimeZoneProviders.Tzdb["America/New_York"])  // ZonedDateTime
-                        .ToDateTimeUtc(); 
+
+                    endUtc = startUtc.AddHours(7.5);
                     Console.WriteLine($"-----------------after changed become {endUtc}");
                     
                     var request = new Data.HistoryRequest(startUtc, endUtc, dataType, symbol, resolution, exchangeHours: exchangeHours, dataTimeZone: dataTimeZone, resolution,

@@ -32,6 +32,16 @@ public sealed class DataDownloadConfig : BaseDataDownloadConfig
     
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="DataDownloadConfig"/> class.
+    /// </summary>s
+    public DataDownloadConfig()
+    {
+        TickType = ParseEnum<TickType>(Config.Get(DownloaderCommandArguments.CommandDataType));
+        Resolution = ParseEnum<Resolution>(Config.Get(DownloaderCommandArguments.CommandResolution));
+    }
+    
+    
+    /// <summary>
     /// Initializes a new instance of the <see cref="DataDownloadConfig"/> class with the specified parameters.
     /// </summary>
     /// <param name="tickType">The type of tick data to be downloaded.</param>

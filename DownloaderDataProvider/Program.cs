@@ -143,12 +143,11 @@ public static class Program
             case "TRADE":
             case "QUOTE":
             case "OPENINTEREST":
-                var screen = (string)aruguments["screen"];
-                var startTime = aruguments["startTime"];
-                var endTime = aruguments["endTime"];
-
-                var startDate = DateTime.ParseExact("20251212", "yyyyMMdd", null);
-                var endDate = DateTime.ParseExact("20251220", "yyyyMMdd", null);
+                var argTickers = (Dictionary<string, object>)aruguments["tickers"];
+                var screen = argTickers.Keys.First().ToLower();
+                Console.WriteLine($"----------------screen {screen}");
+                var startDate = DateTime.ParseExact((string)aruguments["start-date"], "yyyyMMdd", null);
+                var endDate = DateTime.ParseExact((string)aruguments["end-date"], "yyyyMMdd", null);
 
                 for (var date = startDate; date <= endDate; date = date.AddDays(1))
                 {

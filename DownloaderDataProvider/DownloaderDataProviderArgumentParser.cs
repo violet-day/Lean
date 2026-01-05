@@ -37,8 +37,7 @@ public static class DownloaderDataProviderArgumentParser
         new CommandLineOption(DownloaderCommandArguments.CommandResolution, CommandOptionType.SingleValue),
         
         new CommandLineOption(DownloaderCommandArguments.CommandStartDate, CommandOptionType.SingleValue),
-        new CommandLineOption(DownloaderCommandArguments.CommandEndDate, CommandOptionType.SingleValue),
-        new CommandLineOption(DownloaderCommandArguments.CommandScreen, CommandOptionType.SingleValue)
+        new CommandLineOption(DownloaderCommandArguments.CommandEndDate, CommandOptionType.SingleValue)
     };
 
     /// <summary>

@@ -25,19 +25,13 @@ namespace QuantConnect.DownloaderDataProvider.Launcher.Models;
 /// </summary>
 public sealed class DataDownloadConfig : BaseDataDownloadConfig
 {
+    public string Screen;
+
     /// <summary>
     /// Gets the type of data download.
     /// </summary>
     public override Type DataType { get => LeanData.GetDataType(Resolution, TickType); }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DataDownloadConfig"/> class.
-    /// </summary>s
-    public DataDownloadConfig()
-    {
-        TickType = ParseEnum<TickType>(Config.Get(DownloaderCommandArguments.CommandDataType));
-        Resolution = ParseEnum<Resolution>(Config.Get(DownloaderCommandArguments.CommandResolution));
-    }
+    
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataDownloadConfig"/> class with the specified parameters.

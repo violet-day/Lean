@@ -12,8 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
-*/
+ */
 
+using System.Buffers.Text;
+using System.Text;
 using NodaTime;
 using QuantConnect.Util;
 using QuantConnect.Data;
@@ -29,6 +31,7 @@ using QuantConnect.DownloaderDataProvider.Launcher.Models.Constants;
 using QuantConnect.Lean.Engine.HistoricalData;
 
 namespace QuantConnect.DownloaderDataProvider.Launcher;
+
 public static class Program
 {
     /// <summary>
@@ -51,6 +54,58 @@ public static class Program
     /// </summary>
     private static readonly MarketHoursDatabase _marketHoursDatabase = MarketHoursDatabase.FromDataFolder();
 
+    private static string DownloadFromGithub(string filePath)
+    {
+        var owner = "violet-day";
+        var repo = "dataset";
+
+        var url = $"https://api.github.com/repos/{Uri.EscapeDataString(owner)}/{Uri.EscapeDataString(repo)}/contents/{
+            Uri.EscapeDataString(filePath)}";
+
+        using var client = new HttpClient();
+
+        var token = Config.Get("github-token");
+        Console.WriteLine($"from config token is {token}");
+        client.DefaultRequestHeaders.Add("Authorization", $"token {token}");
+        client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3.raw");
+        client.DefaultRequestHeaders.Add("User-Agent", "QuantConnect-Lean/1.0");
+
+        try
+        {
+            var content = client.GetStringAsync(url).Result;
+
+            if (string.IsNullOrEmpty(content) || content.Contains("Not Found"))
+            {
+                return null;
+            }
+
+            return content;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"下载失败: {ex.Message}");
+            return null;
+        }
+    }
+
+    public static List<String> readFromGithub(String screen, DateTime dt)
+    {
+        var day = dt.ToString("yyMMdd");
+        var month = dt.ToString("yyMM");
+
+        var filePath = $"{screen}/{month}/{day}.csv";
+        var content = DownloadFromGithub(filePath);
+
+        var symbols = content
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Split(',')[1].Trim())
+            .Distinct()
+            .ToList();
+        Console.WriteLine($"pre request {day} with {symbols.Count} symbols");
+        return symbols;
+    }
+
+
     /// <summary>
     /// The main entry point for the application.
     /// </summary>
@@ -62,12 +117,14 @@ public static class Program
         {
             Config.MergeCommandLineArgumentsWithConfiguration(DownloaderDataProviderArgumentParser.ParseArguments(args));
         }
-
+    
         InitializeConfigurations();
-
+    
+        Log.DebuggingEnabled = true;
+    
         var dataDownloader = Composer.Instance.GetExportedValueByTypeName<IDataDownloader>(Config.Get(DownloaderCommandArguments.CommandDownloaderDataDownloader));
-        var commandDataType = Config.Get(DownloaderCommandArguments.CommandDataType).ToUpperInvariant();
-
+        var commandDataType = "TRADE";
+    
         switch (commandDataType)
         {
             case "UNIVERSE":
@@ -82,7 +139,7 @@ public static class Program
                 Log.Error($"QuantConnect.DownloaderDataProvider.Launcher: Unsupported command data type '{commandDataType}'. Valid options: UNIVERSE, TRADE, QUOTE, OPENINTEREST.");
                 break;
         }
-
+    
         if (dataDownloader is BrokerageDataDownloader brokerageDataDownloader)
         {
             brokerageDataDownloader.DisposeSafely();
@@ -98,11 +155,18 @@ public static class Program
     /// <param name="dataCacheProvider">The provider used to cache history data files</param>
     /// <param name="mapSymbol">True if the symbol should be mapped while writing the data</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="dataDownloader"/> is null.</exception>
-    public static void RunDownload(IDataDownloader dataDownloader, DataDownloadConfig dataDownloadConfig, string dataDirectory, IDataCacheProvider dataCacheProvider, bool mapSymbol = true)
+    public static void RunDownload(
+        IDataDownloader dataDownloader,
+        DataDownloadConfig dataDownloadConfig,
+        string dataDirectory,
+        IDataCacheProvider dataCacheProvider,
+        bool mapSymbol = true
+        )
     {
         if (dataDownloader == null)
         {
-            throw new ArgumentNullException(nameof(dataDownloader), "The data downloader instance cannot be null. Please ensure that a valid instance of data downloader is provided.");
+            throw new ArgumentNullException(nameof(dataDownloader),
+                "The data downloader instance cannot be null. Please ensure that a valid instance of data downloader is provided.");
         }
 
         var totalDownloadSymbols = dataDownloadConfig.Symbols.Count;
@@ -111,7 +175,8 @@ public static class Program
 
         foreach (var symbol in dataDownloadConfig.Symbols)
         {
-            var downloadParameters = new DataDownloaderGetParameters(symbol, dataDownloadConfig.Resolution, dataDownloadConfig.StartDate, dataDownloadConfig.EndDate, dataDownloadConfig.TickType);
+            var downloadParameters = new DataDownloaderGetParameters(symbol, dataDownloadConfig.Resolution,
+                dataDownloadConfig.StartDate, dataDownloadConfig.EndDate, dataDownloadConfig.TickType);
 
             Log.Trace($"DownloaderDataProvider.Main(): Starting download {downloadParameters}");
             var downloadedData = dataDownloader.Get(downloadParameters);
@@ -119,13 +184,15 @@ public static class Program
             if (downloadedData == null)
             {
                 completeSymbolCount++;
-                Log.Trace($"DownloaderDataProvider.Main(): No data available for the following parameters: {downloadParameters}");
+                Log.Trace($"DownloaderDataProvider.Main(): No data available for the following parameters: {
+                    downloadParameters}");
                 continue;
             }
 
             var (dataTimeZone, exchangeTimeZone) = GetDataAndExchangeTimeZoneBySymbol(symbol);
 
-            var writer = new LeanDataWriter(dataDownloadConfig.Resolution, symbol, dataDirectory, dataDownloadConfig.TickType, dataCacheProvider, mapSymbol: mapSymbol);
+            var writer = new LeanDataWriter(dataDownloadConfig.Resolution, symbol, dataDirectory,
+                dataDownloadConfig.TickType, dataCacheProvider, mapSymbol: mapSymbol);
 
             var groupedData = DataFeeds.DownloaderDataProvider.FilterAndGroupDownloadDataBySymbol(
                 downloadedData,
@@ -148,17 +215,21 @@ public static class Program
                         lastLogStatusTime = utcNow;
                         Log.Trace($"Downloading data for {downloadParameters.Symbol}. Please hold on...");
                     }
+
                     return data;
                 }));
             }
 
             completeSymbolCount++;
             var symbolPercentComplete = (double)completeSymbolCount / totalDownloadSymbols * 100;
-            Log.Trace($"DownloaderDataProvider.RunDownload(): {symbolPercentComplete:F2}% complete ({completeSymbolCount} out of {totalDownloadSymbols} symbols)");
+            Log.Trace($"DownloaderDataProvider.RunDownload(): {symbolPercentComplete:F2}% complete ({completeSymbolCount
+            } out of {totalDownloadSymbols} symbols)");
 
-            Log.Trace($"DownloaderDataProvider.RunDownload(): Download completed for {downloadParameters.Symbol} at {downloadParameters.Resolution} resolution, " +
+            Log.Trace($"DownloaderDataProvider.RunDownload(): Download completed for {downloadParameters.Symbol} at {
+                downloadParameters.Resolution} resolution, " +
                 $"covering the period from {dataDownloadConfig.StartDate} to {dataDownloadConfig.EndDate}.");
         }
+
         Log.Trace($"All downloads completed in {(DateTime.UtcNow - startDownloadUtcTime).TotalSeconds:F2} seconds.");
     }
 
@@ -167,11 +238,15 @@ public static class Program
     /// </summary>
     /// <param name="dataDownloader">The data downloader instance.</param>
     /// <param name="dataUniverseDownloadConfig">The universe download configuration.</param>
-    private static void RunUniverseDownloader(IDataDownloader dataDownloader, DataUniverseDownloadConfig dataUniverseDownloadConfig)
+    private static void RunUniverseDownloader(
+        IDataDownloader dataDownloader,
+        DataUniverseDownloadConfig dataUniverseDownloadConfig
+        )
     {
         foreach (var symbol in dataUniverseDownloadConfig.Symbols)
         {
-            var universeDownloadParameters = new DataUniverseDownloaderGetParameters(symbol, dataUniverseDownloadConfig.StartDate, dataUniverseDownloadConfig.EndDate);
+            var universeDownloadParameters = new DataUniverseDownloaderGetParameters(symbol,
+                dataUniverseDownloadConfig.StartDate, dataUniverseDownloadConfig.EndDate);
             UniverseExtensions.RunUniverseDownloader(dataDownloader, universeDownloadParameters);
         }
     }
@@ -185,7 +260,9 @@ public static class Program
     /// The data time zone represents the time zone for data related to the symbol.
     /// The exchange time zone represents the time zone for trading activities related to the symbol.
     /// </returns>
-    private static (DateTimeZone dataTimeZone, DateTimeZone exchangeTimeZone) GetDataAndExchangeTimeZoneBySymbol(Symbol symbol)
+    private static (DateTimeZone dataTimeZone, DateTimeZone exchangeTimeZone) GetDataAndExchangeTimeZoneBySymbol(
+        Symbol symbol
+        )
     {
         var entry = _marketHoursDatabase.GetEntry(symbol.ID.Market, symbol, symbol.SecurityType);
         return (entry.DataTimeZone, entry.ExchangeHours.TimeZone);
@@ -209,18 +286,27 @@ public static class Program
     public static void InitializeConfigurations()
     {
         Log.DebuggingEnabled = Config.GetBool("debug-mode", false);
-        Log.LogHandler = Composer.Instance.GetExportedValueByTypeName<ILogHandler>(Config.Get("log-handler", "CompositeLogHandler"));
+        Log.LogHandler =
+            Composer.Instance.GetExportedValueByTypeName<ILogHandler>(Config.Get("log-handler", "CompositeLogHandler"));
 
         var dataProvider = Composer.Instance.GetExportedValueByTypeName<IDataProvider>("DefaultDataProvider");
-        var mapFileProvider = Composer.Instance.GetExportedValueByTypeName<IMapFileProvider>(Config.Get("map-file-provider", "LocalDiskMapFileProvider"));
-        var factorFileProvider = Composer.Instance.GetExportedValueByTypeName<IFactorFileProvider>(Config.Get("factor-file-provider", "LocalDiskFactorFileProvider"));
+        var mapFileProvider =
+            Composer.Instance.GetExportedValueByTypeName<IMapFileProvider>(Config.Get("map-file-provider",
+                "LocalDiskMapFileProvider"));
+        var factorFileProvider =
+            Composer.Instance.GetExportedValueByTypeName<IFactorFileProvider>(Config.Get("factor-file-provider",
+                "LocalDiskFactorFileProvider"));
 
         var optionChainProvider = Composer.Instance.GetPart<IOptionChainProvider>();
         if (optionChainProvider == null)
         {
-            var historyManager = Composer.Instance.GetExportedValueByTypeName<HistoryProviderManager>(nameof(HistoryProviderManager));
-            historyManager.Initialize(new HistoryProviderInitializeParameters(null, null, dataProvider, _dataCacheProvider,
-                mapFileProvider, factorFileProvider, _ => { }, false, new DataPermissionManager(), null, new AlgorithmSettings()));
+            var historyManager =
+                Composer.Instance.GetExportedValueByTypeName<HistoryProviderManager>(nameof(HistoryProviderManager));
+            historyManager.Initialize(new HistoryProviderInitializeParameters(null, null, dataProvider,
+                _dataCacheProvider,
+                mapFileProvider, factorFileProvider, _ =>
+                {
+                }, false, new DataPermissionManager(), null, new AlgorithmSettings()));
             var baseOptionChainProvider = new LiveOptionChainProvider();
             baseOptionChainProvider.Initialize(new(mapFileProvider, historyManager));
             optionChainProvider = new CachingOptionChainProvider(baseOptionChainProvider);

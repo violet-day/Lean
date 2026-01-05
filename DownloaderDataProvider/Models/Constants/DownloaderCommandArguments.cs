@@ -19,8 +19,7 @@ namespace QuantConnect.DownloaderDataProvider.Launcher.Models.Constants
     public sealed class DownloaderCommandArguments
     {
         public const string CommandDownloaderDataDownloader = "data-downloader";
-
-        // depreacted
+        
         public const string CommandDataType = "data-type";
 
         public const string CommandTickers = "tickers";
@@ -31,11 +30,9 @@ namespace QuantConnect.DownloaderDataProvider.Launcher.Models.Constants
 
         public const string CommandResolution = "resolution";
         
-        
         public const string CommandStartDate = "start-date";
 
         public const string CommandEndDate = "end-date";
         
-        public const string CommandScreen = "screen";
     }
 }

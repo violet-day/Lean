@@ -15,6 +15,7 @@
  */
 
 using System.Buffers.Text;
+using System.Collections;
 using System.Text;
 using NodaTime;
 using QuantConnect.Util;
@@ -143,8 +144,8 @@ public static class Program
             case "TRADE":
             case "QUOTE":
             case "OPENINTEREST":
-                var argTickers = (Dictionary<string, object>)aruguments["tickers"];
-                var screen = argTickers.Keys.First().ToLower();
+                var argTickers = (IDictionary)aruguments["tickers"];
+                var screen = argTickers.Keys.Cast<string>().First().ToLower();
                 Console.WriteLine($"----------------screen {screen}");
                 var startDate = DateTime.ParseExact((string)aruguments["start-date"], "yyyyMMdd", null);
                 var endDate = DateTime.ParseExact((string)aruguments["end-date"], "yyyyMMdd", null);
@@ -153,7 +154,7 @@ public static class Program
                 {
                     List<String> tickers = ReadFromGithub(screen, date);
 
-                    var downloadConfig = new DataDownloadConfig(
+                    var minuteDownloadConfig = new DataDownloadConfig(
                         TickType.Trade,
                         SecurityType.Equity,
                         Resolution.Minute,
@@ -162,9 +163,20 @@ public static class Program
                         Market.USA,
                         tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
                     );
-
-                    RunDownload(dataDownloader, downloadConfig, Globals.DataFolder, _dataCacheProvider);
-                    Console.WriteLine($"download {screen}#{startDate} done");
+                    RunDownload(dataDownloader, minuteDownloadConfig, Globals.DataFolder, _dataCacheProvider);
+                    Console.WriteLine($"------------------- download {screen}#{startDate} minute history done");
+                    
+                    var secondDownloadConfig = new DataDownloadConfig(
+                        TickType.Trade,
+                        SecurityType.Equity,
+                        Resolution.Second,
+                        startDate,
+                        startDate.AddDays(1),
+                        Market.USA,
+                        tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
+                    );
+                    RunDownload(dataDownloader, secondDownloadConfig, Globals.DataFolder, _dataCacheProvider);
+                    Console.WriteLine($"------------------- download {screen}#{startDate} second history done");                    
                 }
 
                 break;

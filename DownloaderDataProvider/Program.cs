@@ -168,6 +168,17 @@ public static class Program
                         RunDownload(dataDownloader, minuteDownloadConfig, Globals.DataFolder, _dataCacheProvider);
                         Console.WriteLine($"------------------- download {screen}#{startDate} minute history done");
 
+                        RunDownload(dataDownloader, new DataDownloadConfig(
+                            TickType.Trade,
+                            SecurityType.Equity,
+                            Resolution.Minute,
+                            startDate,
+                            startDate.AddDays(1),
+                            Market.USA,
+                            new List<Symbol>{Symbol.Create("SPY", SecurityType.Equity, Market.USA)}
+                        ), Globals.DataFolder, _dataCacheProvider);
+                        Console.WriteLine($"------------------- download spy#{startDate} minute history done");
+
                         var secondDownloadConfig = new DataDownloadConfig(
                             TickType.Trade,
                             SecurityType.Equity,

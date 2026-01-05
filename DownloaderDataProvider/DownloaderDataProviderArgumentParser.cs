@@ -53,7 +53,6 @@ public static class DownloaderDataProviderArgumentParser
     /// </remarks>
     public static Dictionary<string, object> ParseArguments(string[] args)
     {
-        Console.WriteLine($"-----------------ParseArguments {args.Length}");
         return ApplicationParser.Parse(ApplicationName, ApplicationDescription, ApplicationHelpText, args, Options);
     }
 }

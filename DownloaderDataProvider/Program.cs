@@ -88,21 +88,27 @@ public static class Program
         }
     }
 
-    public static List<String> readFromGithub(String screen, DateTime dt)
+    public static List<String> ReadFromGithub(String screen, DateTime dt)
     {
         var day = dt.ToString("yyMMdd");
         var month = dt.ToString("yyMM");
 
         var filePath = $"{screen}/{month}/{day}.csv";
         var content = DownloadFromGithub(filePath);
-
-        var symbols = content
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Select(line => line.Split(',')[1].Trim())
-            .Distinct()
-            .ToList();
-        Console.WriteLine($"pre request {day} with {symbols.Count} symbols");
-        return symbols;
+        if (content != null)
+        {
+            var symbols = content
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                .Select(line => line.Split(',')[1].Trim())
+                .Distinct()
+                .ToList();
+            Console.WriteLine($"pre request {day} with {symbols.Count} symbols");
+            return symbols;
+        }
+        else
+        {
+            return new List<string>();
+        }
     }
 
 
@@ -112,19 +118,22 @@ public static class Program
     /// <param name="args">Command-line arguments passed to the application.</param>
     public static void Main(string[] args)
     {
+        Dictionary<string, object> aruguments = DownloaderDataProviderArgumentParser.ParseArguments(args);
         // Parse report arguments and merge with config to use in the optimizer
         if (args.Length > 0)
         {
-            Config.MergeCommandLineArgumentsWithConfiguration(DownloaderDataProviderArgumentParser.ParseArguments(args));
+            Config.MergeCommandLineArgumentsWithConfiguration(aruguments);
         }
-    
+
         InitializeConfigurations();
-    
+
         Log.DebuggingEnabled = true;
-    
-        var dataDownloader = Composer.Instance.GetExportedValueByTypeName<IDataDownloader>(Config.Get(DownloaderCommandArguments.CommandDownloaderDataDownloader));
+
+        var dataDownloader =
+            Composer.Instance.GetExportedValueByTypeName<IDataDownloader>(
+                Config.Get(DownloaderCommandArguments.CommandDownloaderDataDownloader));
         var commandDataType = "TRADE";
-    
+
         switch (commandDataType)
         {
             case "UNIVERSE":
@@ -133,13 +142,38 @@ public static class Program
             case "TRADE":
             case "QUOTE":
             case "OPENINTEREST":
-                RunDownload(dataDownloader, new DataDownloadConfig(), Globals.DataFolder, _dataCacheProvider);
+                var screen = (string)aruguments["screen"];
+                var startTime = aruguments["startTime"];
+                var endTime = aruguments["endTime"];
+
+                var startDate = DateTime.ParseExact("20251212", "yyyyMMdd", null);
+                var endDate = DateTime.ParseExact("20251220", "yyyyMMdd", null);
+
+                for (var date = startDate; date <= endDate; date = date.AddDays(1))
+                {
+                    List<String> tickers = ReadFromGithub(screen, date);
+
+                    var downloadConfig = new DataDownloadConfig(
+                        TickType.Trade,
+                        SecurityType.Equity,
+                        Resolution.Minute,
+                        startDate,
+                        startDate.AddDays(1),
+                        Market.USA,
+                        tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
+                    );
+
+                    RunDownload(dataDownloader, downloadConfig, Globals.DataFolder, _dataCacheProvider);
+                    Console.WriteLine($"download {screen}#{startDate} done");
+                }
+
                 break;
             default:
-                Log.Error($"QuantConnect.DownloaderDataProvider.Launcher: Unsupported command data type '{commandDataType}'. Valid options: UNIVERSE, TRADE, QUOTE, OPENINTEREST.");
+                Log.Error($"QuantConnect.DownloaderDataProvider.Launcher: Unsupported command data type '{
+                    commandDataType}'. Valid options: UNIVERSE, TRADE, QUOTE, OPENINTEREST.");
                 break;
         }
-    
+
         if (dataDownloader is BrokerageDataDownloader brokerageDataDownloader)
         {
             brokerageDataDownloader.DisposeSafely();

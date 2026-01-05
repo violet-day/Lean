@@ -20,6 +20,18 @@ namespace QuantConnect.DownloaderDataProvider.Launcher.Models.Constants
     {
         public const string CommandDownloaderDataDownloader = "data-downloader";
 
+        // depreacted
+        public const string CommandDataType = "data-type";
+
+        public const string CommandTickers = "tickers";
+
+        public const string CommandSecurityType = "security-type";
+
+        public const string CommandMarketName = "market";
+
+        public const string CommandResolution = "resolution";
+        
+        
         public const string CommandStartDate = "start-date";
 
         public const string CommandEndDate = "end-date";

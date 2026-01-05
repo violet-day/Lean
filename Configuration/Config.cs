@@ -61,9 +61,11 @@ namespace QuantConnect.Configuration
                 SetConfigurationFile(cliArguments["config"] as string);
                 Reset();
             }
-
+            
             var jsonArguments = JsonConvert.DeserializeObject(JsonConvert.SerializeObject(cliArguments));
-
+            
+            Console.WriteLine($"-----------before is {cliArguments}, after is {jsonArguments}");
+            
             Settings.Value.Merge(jsonArguments, new JsonMergeSettings
             {
                 MergeArrayHandling = MergeArrayHandling.Union

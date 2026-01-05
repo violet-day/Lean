@@ -25,8 +25,6 @@ namespace QuantConnect.DownloaderDataProvider.Launcher.Models;
 /// </summary>
 public sealed class DataDownloadConfig : BaseDataDownloadConfig
 {
-    public string Screen;
-
     /// <summary>
     /// Gets the type of data download.
     /// </summary>

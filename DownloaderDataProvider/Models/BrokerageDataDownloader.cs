@@ -109,10 +109,13 @@ namespace QuantConnect.DownloaderDataProvider.Launcher.Models
             return symbols
                 .Select(symbol =>
                 {
-                    Console.WriteLine($"----------------{startUtc}, {endUtc}------------------");
+                    if (dataDownloaderGetParameters.Resolution == Resolution.Second)
+                    {
+                        Console.WriteLine($"----------------{startUtc}, {endUtc}------------------");
 
-                    endUtc = startUtc.AddHours(12+3.5);
-                    Console.WriteLine($"-----------------after changed become {endUtc}");
+                        endUtc = startUtc.AddHours(12+3.5);
+                        Console.WriteLine($"-----------------after changed become {endUtc}");
+                    }
                     
                     var request = new Data.HistoryRequest(startUtc, endUtc, dataType, symbol, resolution, exchangeHours: exchangeHours, dataTimeZone: dataTimeZone, resolution,
                         // let's not ask for extended market hours for hour and daily resolutions to match lean

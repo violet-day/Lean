@@ -30,11 +30,11 @@ public static class DownloaderDataProviderArgumentParser
     {
         new CommandLineOption(DownloaderCommandArguments.CommandDownloaderDataDownloader, CommandOptionType.SingleValue),
         
-        // new CommandLineOption(DownloaderCommandArguments.CommandDataType, CommandOptionType.SingleValue),
-        // new CommandLineOption(DownloaderCommandArguments.CommandTickers, CommandOptionType.MultipleValue),
-        // new CommandLineOption(DownloaderCommandArguments.CommandSecurityType, CommandOptionType.SingleValue),
-        // new CommandLineOption(DownloaderCommandArguments.CommandMarketName, CommandOptionType.SingleValue),
-        // new CommandLineOption(DownloaderCommandArguments.CommandResolution, CommandOptionType.SingleValue),
+        new CommandLineOption(DownloaderCommandArguments.CommandDataType, CommandOptionType.SingleValue),
+        new CommandLineOption(DownloaderCommandArguments.CommandTickers, CommandOptionType.MultipleValue),
+        new CommandLineOption(DownloaderCommandArguments.CommandSecurityType, CommandOptionType.SingleValue),
+        new CommandLineOption(DownloaderCommandArguments.CommandMarketName, CommandOptionType.SingleValue),
+        new CommandLineOption(DownloaderCommandArguments.CommandResolution, CommandOptionType.SingleValue),
         
         new CommandLineOption(DownloaderCommandArguments.CommandStartDate, CommandOptionType.SingleValue),
         new CommandLineOption(DownloaderCommandArguments.CommandEndDate, CommandOptionType.SingleValue),

@@ -66,7 +66,7 @@ public static class Program
         using var client = new HttpClient();
 
         var token = Config.Get("github-token");
-        Console.WriteLine($"from config token is {token}");
+        Console.WriteLine($"-------------- from config token is {token}");
         client.DefaultRequestHeaders.Add("Authorization", $"token {token}");
         client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3.raw");
         client.DefaultRequestHeaders.Add("User-Agent", "QuantConnect-Lean/1.0");
@@ -120,7 +120,7 @@ public static class Program
     public static void Main(string[] args)
     {
         Dictionary<string, object> aruguments = DownloaderDataProviderArgumentParser.ParseArguments(args);
-    
+
         // Parse report arguments and merge with config to use in the optimizer
         if (args.Length > 0)
         {
@@ -144,41 +144,47 @@ public static class Program
             case "TRADE":
             case "QUOTE":
             case "OPENINTEREST":
-                var argTickers = (IDictionary)aruguments["tickers"];
-                var screen = argTickers.Keys.Cast<string>().First().ToLower();
-                Console.WriteLine($"----------------screen {screen}");
-                var startDate = DateTime.ParseExact((string)aruguments["start-date"], "yyyyMMdd", null);
-                var endDate = DateTime.ParseExact((string)aruguments["end-date"], "yyyyMMdd", null);
-
-                for (var date = startDate; date <= endDate; date = date.AddDays(1))
+                if ((string)aruguments["market"] == "screen")
                 {
-                    List<String> tickers = ReadFromGithub(screen, date);
+                    var argTickers = (IDictionary)aruguments["tickers"];
+                    var screen = argTickers.Keys.Cast<string>().First().ToLower();
+                    Console.WriteLine($"----------------screen {screen}");
+                    var startDate = DateTime.ParseExact((string)aruguments["start-date"], "yyyyMMdd", null);
+                    var endDate = DateTime.ParseExact((string)aruguments["end-date"], "yyyyMMdd", null);
 
-                    var minuteDownloadConfig = new DataDownloadConfig(
-                        TickType.Trade,
-                        SecurityType.Equity,
-                        Resolution.Minute,
-                        startDate,
-                        startDate.AddDays(1),
-                        Market.USA,
-                        tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
-                    );
-                    RunDownload(dataDownloader, minuteDownloadConfig, Globals.DataFolder, _dataCacheProvider);
-                    Console.WriteLine($"------------------- download {screen}#{startDate} minute history done");
-                    
-                    var secondDownloadConfig = new DataDownloadConfig(
-                        TickType.Trade,
-                        SecurityType.Equity,
-                        Resolution.Second,
-                        startDate,
-                        startDate.AddDays(1),
-                        Market.USA,
-                        tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
-                    );
-                    RunDownload(dataDownloader, secondDownloadConfig, Globals.DataFolder, _dataCacheProvider);
-                    Console.WriteLine($"------------------- download {screen}#{startDate} second history done");                    
+                    for (var date = startDate; date <= endDate; date = date.AddDays(1))
+                    {
+                        List<String> tickers = ReadFromGithub(screen, date);
+
+                        var minuteDownloadConfig = new DataDownloadConfig(
+                            TickType.Trade,
+                            SecurityType.Equity,
+                            Resolution.Minute,
+                            startDate,
+                            startDate.AddDays(1),
+                            Market.USA,
+                            tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
+                        );
+                        RunDownload(dataDownloader, minuteDownloadConfig, Globals.DataFolder, _dataCacheProvider);
+                        Console.WriteLine($"------------------- download {screen}#{startDate} minute history done");
+
+                        var secondDownloadConfig = new DataDownloadConfig(
+                            TickType.Trade,
+                            SecurityType.Equity,
+                            Resolution.Second,
+                            startDate,
+                            startDate.AddDays(1),
+                            Market.USA,
+                            tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
+                        );
+                        RunDownload(dataDownloader, secondDownloadConfig, Globals.DataFolder, _dataCacheProvider);
+                        Console.WriteLine($"------------------- download {screen}#{startDate} second history done");
+                    }
                 }
-
+                else
+                {
+                    RunDownload(dataDownloader, new DataDownloadConfig(), Globals.DataFolder, _dataCacheProvider);
+                }
                 break;
             default:
                 Log.Error($"QuantConnect.DownloaderDataProvider.Launcher: Unsupported command data type '{

@@ -24,7 +24,8 @@ namespace QuantConnect.Configuration
         public static Dictionary<string, object> Parse(string applicationName, string applicationDescription, string applicationHelpText,
                                                        string[] args, List<CommandLineOption> options, bool noArgsShowHelp = false)
         {
-            Console.WriteLine($"--------------------------ApplicationParser {args}");
+            Console.WriteLine($"--------------------------ApplicationParser {args} {args.Length}");
+
             var application = new CommandLineApplication
             {
                 Name = applicationName,

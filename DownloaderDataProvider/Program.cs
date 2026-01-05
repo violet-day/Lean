@@ -119,6 +119,10 @@ public static class Program
     public static void Main(string[] args)
     {
         Dictionary<string, object> aruguments = DownloaderDataProviderArgumentParser.ParseArguments(args);
+        foreach (var key in aruguments.Keys)
+        {
+            Console.WriteLine($"args parsed {key}");
+        }
         // Parse report arguments and merge with config to use in the optimizer
         if (args.Length > 0)
         {

@@ -166,7 +166,7 @@ public static class Program
                             tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
                         );
                         RunDownload(dataDownloader, minuteDownloadConfig, Globals.DataFolder, _dataCacheProvider);
-                        Console.WriteLine($"------------------- download {screen}#{startDate} minute history done");
+                        Console.WriteLine($"------------------- download {screen}#{date} minute history done");
 
                         RunDownload(dataDownloader, new DataDownloadConfig(
                             TickType.Trade,
@@ -177,7 +177,7 @@ public static class Program
                             Market.USA,
                             new List<Symbol>{Symbol.Create("SPY", SecurityType.Equity, Market.USA)}
                         ), Globals.DataFolder, _dataCacheProvider);
-                        Console.WriteLine($"------------------- download spy#{startDate} minute history done");
+                        Console.WriteLine($"------------------- download spy#{date} minute history done");
 
                         var secondDownloadConfig = new DataDownloadConfig(
                             TickType.Trade,
@@ -189,7 +189,7 @@ public static class Program
                             tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
                         );
                         RunDownload(dataDownloader, secondDownloadConfig, Globals.DataFolder, _dataCacheProvider);
-                        Console.WriteLine($"------------------- download {screen}#{startDate} second history done");
+                        Console.WriteLine($"------------------- download {screen}#{date} second history done");
                     }
                 }
                 else

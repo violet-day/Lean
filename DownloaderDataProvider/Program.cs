@@ -160,8 +160,8 @@ public static class Program
                             TickType.Trade,
                             SecurityType.Equity,
                             Resolution.Minute,
-                            startDate,
-                            startDate.AddDays(1),
+                            date,
+                            date.AddDays(1),
                             Market.USA,
                             tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
                         );
@@ -172,8 +172,8 @@ public static class Program
                             TickType.Trade,
                             SecurityType.Equity,
                             Resolution.Minute,
-                            startDate,
-                            startDate.AddDays(1),
+                            date,
+                            date.AddDays(1),
                             Market.USA,
                             new List<Symbol>{Symbol.Create("SPY", SecurityType.Equity, Market.USA)}
                         ), Globals.DataFolder, _dataCacheProvider);
@@ -183,8 +183,8 @@ public static class Program
                             TickType.Trade,
                             SecurityType.Equity,
                             Resolution.Second,
-                            startDate,
-                            startDate.AddDays(1),
+                            date,
+                            date.AddDays(1),
                             Market.USA,
                             tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
                         );

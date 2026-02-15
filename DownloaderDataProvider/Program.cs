@@ -148,13 +148,14 @@ public static class Program
                 {
                     var argTickers = (IDictionary)aruguments["tickers"];
                     var screen = argTickers.Keys.Cast<string>().First().ToLower();
-                    Console.WriteLine($"----------------screen {screen}");
+                    Console.WriteLine($"----------------pre download screen {screen}");
                     var startDate = DateTime.ParseExact((string)aruguments["start-date"], "yyyyMMdd", null);
                     var endDate = DateTime.ParseExact((string)aruguments["end-date"], "yyyyMMdd", null);
 
                     for (var date = startDate; date <= endDate; date = date.AddDays(1))
                     {
                         List<String> tickers = ReadFromGithub(screen, date);
+                        Console.WriteLine($"---------------------------load screen {screen}@{date} with {string.Join(",", tickers)}");
 
                         var minuteDownloadConfig = new DataDownloadConfig(
                             TickType.Trade,

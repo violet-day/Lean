@@ -66,7 +66,15 @@ public static class Program
         using var client = new HttpClient();
 
         var token = Config.Get("github-token");
-        Console.WriteLine($"-------------- from config token is {token}");
+        if (token.Length == 0)
+        {
+            Console.WriteLine("------------ you should update lean.json token");
+        }
+        else
+        {
+            Console.WriteLine($"-------------- from config token is {token}");    
+        }
+        
         client.DefaultRequestHeaders.Add("Authorization", $"token {token}");
         client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3.raw");
         client.DefaultRequestHeaders.Add("User-Agent", "QuantConnect-Lean/1.0");
@@ -151,7 +159,8 @@ public static class Program
                     Console.WriteLine($"----------------pre download screen {screen}");
                     var startDate = DateTime.ParseExact((string)aruguments["start-date"], "yyyyMMdd", null);
                     var endDate = DateTime.ParseExact((string)aruguments["end-date"], "yyyyMMdd", null);
-
+                    var resolution = Enum.Parse<Resolution>((string)aruguments["resolution"]);
+                    
                     for (var date = startDate; date <= endDate; date = date.AddDays(1))
                     {
                         List<String> tickers = ReadFromGithub(screen, date);
@@ -160,7 +169,7 @@ public static class Program
                         var minuteDownloadConfig = new DataDownloadConfig(
                             TickType.Trade,
                             SecurityType.Equity,
-                            Resolution.Minute,
+                            resolution,
                             date,
                             date.AddDays(1),
                             Market.USA,
@@ -172,7 +181,7 @@ public static class Program
                         RunDownload(dataDownloader, new DataDownloadConfig(
                             TickType.Trade,
                             SecurityType.Equity,
-                            Resolution.Minute,
+                            resolution,
                             date,
                             date.AddDays(1),
                             Market.USA,
@@ -180,17 +189,17 @@ public static class Program
                         ), Globals.DataFolder, _dataCacheProvider);
                         Console.WriteLine($"------------------- download spy#{date} minute history done");
 
-                        var secondDownloadConfig = new DataDownloadConfig(
-                            TickType.Trade,
-                            SecurityType.Equity,
-                            Resolution.Second,
-                            date,
-                            date.AddDays(1),
-                            Market.USA,
-                            tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
-                        );
-                        RunDownload(dataDownloader, secondDownloadConfig, Globals.DataFolder, _dataCacheProvider);
-                        Console.WriteLine($"------------------- download {screen}#{date} second history done");
+                        // var secondDownloadConfig = new DataDownloadConfig(
+                        //     TickType.Trade,
+                        //     SecurityType.Equity,
+                        //     Resolution.Second,
+                        //     date,
+                        //     date.AddDays(1),
+                        //     Market.USA,
+                        //     tickers.Select(t => Symbol.Create(t, SecurityType.Equity, Market.USA)).ToList()
+                        // );
+                        // RunDownload(dataDownloader, secondDownloadConfig, Globals.DataFolder, _dataCacheProvider);
+                        // Console.WriteLine($"------------------- download {screen}#{date} second history done");
                     }
                 }
                 else

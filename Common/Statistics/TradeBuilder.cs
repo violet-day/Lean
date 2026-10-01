@@ -17,7 +17,6 @@ using QuantConnect.Data.Market;
 using QuantConnect.Interfaces;
 using QuantConnect.Orders;
 using QuantConnect.Securities;
-using QuantConnect.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,11 +76,8 @@ namespace QuantConnect.Statistics
 
         private const int LiveModeMaxTradeCount = 10000;
         private const int LiveModeMaxTradeAgeMonths = 12;
-        private const int MaxOrderIdCacheSize = 1000;
-
         private readonly List<Trade> _closedTrades = new List<Trade>();
         private readonly Dictionary<Symbol, Position> _positions = new Dictionary<Symbol, Position>();
-        private readonly FixedSizeHashQueue<int> _ordersWithFeesAssigned = new FixedSizeHashQueue<int>(MaxOrderIdCacheSize);
         private readonly FillGroupingMethod _groupingMethod;
         private readonly FillMatchingMethod _matchingMethod;
         private SecurityManager _securities;
@@ -221,34 +217,25 @@ namespace QuantConnect.Statistics
         /// </summary>
         /// <param name="fill">The new fill order event</param>
         /// <param name="securityConversionRate">The current security market conversion rate into the account currency</param>
-        /// <param name="feeInAccountCurrency">The current order fee in the account currency</param>
+        /// <param name="feeInAccountCurrency">The current fill fee in the account currency</param>
         /// <param name="multiplier">The contract multiplier</param>
         public void ProcessFill(OrderEvent fill,
             decimal securityConversionRate,
             decimal feeInAccountCurrency,
             decimal multiplier = 1.0m)
         {
-            // If we have multiple fills per order, we assign the order fee only to its first fill
-            // to avoid counting the same order fee multiple times.
-            var orderFee = 0m;
-            if (!_ordersWithFeesAssigned.Contains(fill.OrderId))
-            {
-                orderFee = feeInAccountCurrency;
-                _ordersWithFeesAssigned.Add(fill.OrderId);
-            }
-
             switch (_groupingMethod)
             {
                 case FillGroupingMethod.FillToFill:
-                    ProcessFillUsingFillToFill(fill.Clone(), orderFee, securityConversionRate, multiplier);
+                    ProcessFillUsingFillToFill(fill.Clone(), feeInAccountCurrency, securityConversionRate, multiplier);
                     break;
 
                 case FillGroupingMethod.FlatToFlat:
-                    ProcessFillUsingFlatToFlat(fill.Clone(), orderFee, securityConversionRate, multiplier);
+                    ProcessFillUsingFlatToFlat(fill.Clone(), feeInAccountCurrency, securityConversionRate, multiplier);
                     break;
 
                 case FillGroupingMethod.FlatToReduced:
-                    ProcessFillUsingFlatToReduced(fill.Clone(), orderFee, securityConversionRate, multiplier);
+                    ProcessFillUsingFlatToReduced(fill.Clone(), feeInAccountCurrency, securityConversionRate, multiplier);
                     break;
             }
         }

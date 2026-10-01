@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using QuantConnect.Data;
 using QuantConnect.Data.Market;
@@ -38,6 +39,46 @@ namespace QuantConnect.Tests.Common.Statistics
         public void SetUp()
         {
             _securityManager = new SecurityManager(new TimeKeeper(_startTime));
+        }
+
+        [Test]
+        public void IncludesFeeFromEveryPartialFill(
+            [Values] FillGroupingMethod groupingMethod,
+            [Values] FillMatchingMethod matchingMethod)
+        {
+            var builder = new TradeBuilder(groupingMethod, matchingMethod);
+            builder.SetSecurityManager(_securityManager);
+
+            var firstEntryFee = 2m;
+            builder.ProcessFill(
+                new OrderEvent(1, Symbols.SPY, _startTime, OrderStatus.PartiallyFilled, OrderDirection.Buy,
+                    fillPrice: 10m, fillQuantity: 100m,
+                    orderFee: new OrderFee(new CashAmount(firstEntryFee, Currencies.USD))),
+                ConversionRate, firstEntryFee);
+
+            var secondEntryFee = 3m;
+            builder.ProcessFill(
+                new OrderEvent(1, Symbols.SPY, _startTime.AddSeconds(1), OrderStatus.Filled, OrderDirection.Buy,
+                    fillPrice: 10m, fillQuantity: 200m,
+                    orderFee: new OrderFee(new CashAmount(secondEntryFee, Currencies.USD))),
+                ConversionRate, secondEntryFee);
+
+            var firstExitFee = 5m;
+            builder.ProcessFill(
+                new OrderEvent(2, Symbols.SPY, _startTime.AddMinutes(1), OrderStatus.PartiallyFilled, OrderDirection.Sell,
+                    fillPrice: 11m, fillQuantity: -150m,
+                    orderFee: new OrderFee(new CashAmount(firstExitFee, Currencies.USD))),
+                ConversionRate, firstExitFee);
+
+            var secondExitFee = 7m;
+            builder.ProcessFill(
+                new OrderEvent(2, Symbols.SPY, _startTime.AddMinutes(1).AddSeconds(1), OrderStatus.Filled, OrderDirection.Sell,
+                    fillPrice: 11m, fillQuantity: -150m,
+                    orderFee: new OrderFee(new CashAmount(secondExitFee, Currencies.USD))),
+                ConversionRate, secondExitFee);
+
+            Assert.IsFalse(builder.HasOpenPosition(Symbols.SPY));
+            Assert.AreEqual(17m, builder.ClosedTrades.Sum(trade => trade.TotalFees));
         }
 
         [Test]

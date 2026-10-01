@@ -70,7 +70,7 @@ namespace QuantConnect.Interfaces
         /// </summary>
         /// <param name="fill">The new fill order event</param>
         /// <param name="securityConversionRate">The current security market conversion rate into the account currency</param>
-        /// <param name="feeInAccountCurrency">The current order fee in the account currency</param>
+        /// <param name="feeInAccountCurrency">The current fill fee in the account currency</param>
         /// <param name="multiplier">The contract multiplier</param>
         void ProcessFill(OrderEvent fill,
             decimal securityConversionRate,
